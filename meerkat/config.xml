@@ -2,10 +2,10 @@
 <widget id="com.ionicframework.meerkat769543" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
   <name>meerkat</name>
   <description>
-        An Ionic Framework and Cordova project.
+        See ads from the companies that you love!
     </description>
-  <author email="you@example.com" href="http://example.com/">
-      Your Name Here
+  <author email="larkincrain@gmail.com" href="http://example.com/">
+      Larkin Crain
     </author>
   <content src="index.html"/>
   <access origin="*"/>
