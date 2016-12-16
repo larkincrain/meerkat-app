@@ -58,9 +58,9 @@ angular.module('meerkat', ['ionic', 'meerkat.controllers', 'meerkat.services'])
         views: {
           'feed-list': {
             templateUrl: 'templates/feed-list.html',
-            controller: 'MyFeedCtrl'
+            controller: 'myFeedCtrl'
           }
         }
-      })
+      });
     $urlRouterProvider.otherwise('/auth/signin');
   });

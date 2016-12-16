@@ -32,7 +32,7 @@ angular.module('meerkat.controllers', ['meerkat.services'])
 						//save the token and redirect to the home screen
 						$rootScope.setToken(data.token);
 						$rootScope.hide();
-						$window.location.href = ('#/feed/list');
+						$window.location.href = ('/feed/list');
 					} else {
 						$rootScope.hide();
 						$rootScope.notify(data.message);
@@ -73,7 +73,7 @@ angular.module('meerkat.controllers', ['meerkat.services'])
 						//save the access token
 						$rootScope.setToken(data.token);
 						$rootScope.hide();
-						$window.location.href = ('#/feed/list');
+						$window.location.href = ('/feed/list');
 					} else {
 						//problem with authenticating, so display the error message
 						$rootScope.hide();
@@ -88,18 +88,27 @@ angular.module('meerkat.controllers', ['meerkat.services'])
 		}
 	})
 
-	.controller('myFeedCtrl', function ($rootScope, $scope, API, $ionicModal, $window) {
+	.controller('myFeedCtrl', function ($rootScope, $scope, API, $window) {
 
 		console.log('here!');
+		
 		
 		API.getUsers($rootScope.getToken())
 			.success (function (data, status, headers, config) {
 				$scope.feed = [];
 
+				//debugging
+				console.log('Got user data');
+				console.log(data);
+
 				//iterate through each user
 				for (var count = 0; count < data.length; count ++){
 					$scope.feed.push( data[count]);
 				}
+
+				//more debugging
+				console.log('Feed info');
+				console.log($scope.feed);
 
 				//check if we have no data
 				if (data.length == 0) {
@@ -112,5 +121,5 @@ angular.module('meerkat.controllers', ['meerkat.services'])
 				$rootScope.notify('Something wrong happened');
 			});
 
-		$rootScope.$broadcast('fetchCompleted');
 	});
+
