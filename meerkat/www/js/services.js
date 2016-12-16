@@ -52,13 +52,35 @@ angular.module('meerkat.services', [])
 		return {
 			signin: function (email, password) {
 				return $http({
-					url: base + '/api/users',
+					url: base + '/api/authenticate',
 					method: 'POST',
 					data: {
 						email: email,
 						password: password
 					}
-				})
+				});
+			},
+
+			signup: function(name, email, password) {
+				return $http({
+					url: base + '/api/users',
+					method: 'POST',
+					data: {
+						name: name,
+						email: email,
+						password: password
+					}
+				});
+			},
+
+			getUsers: function() {
+				return $http({
+					url: base + '/api/users',
+					method: 'GET',
+					params: {
+						token: $rootScope.getToken()
+					}
+				});	
 			}
 		}
 	})

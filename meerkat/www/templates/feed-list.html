@@ -1,0 +1,25 @@
+<ion-header-bar class="bar-positive">
+	<h1 class="title"> My Feed! </h1>
+	<button class="button button-clear" ng-click="logout()"> 
+		Logout 
+	</button>
+</ion-header-bar>
+
+<ion-content class="has-header padding" has-tabs="true" on-refresh="onRefresh()">
+	<ion-refresher ng-hide="noData" onRefresh="doRefresh('1')">	
+	</ion-refresher>
+	<div class="card" ng-repeat="item in list">
+		<div class="item item-text-wrap">
+			<span>
+				{{item.name}}
+			</span>
+		</div>
+	</div>
+	<div class="card">
+		<div class="item item-text-wrap" ng-show="noData">
+			<span>
+				No users! :(
+			</span>
+		</div>
+	</div>
+</ion-content>
