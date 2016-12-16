@@ -58,7 +58,7 @@ angular.module('meerkat', ['ionic', 'meerkat.controllers', 'meerkat.services'])
         views: {
           'feed-list': {
             templateUrl: 'templates/feed-list.html',
-            controller: 'myFeedCtrl'
+            controller: 'MyFeedCtrl'
           }
         }
       })

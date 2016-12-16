@@ -1,6 +1,6 @@
 angular.module('meerkat.controllers', ['meerkat.services'])
 
-	.controllers('SignInCtrl', function ($rootScope, $scope, API, $window) {
+	.controller('SignInCtrl', function ($rootScope, $scope, API, $window) {
 
 		//if the user is already logged in, take him to his feed
 		if ($rootScope.isSessionActive() ){
@@ -44,12 +44,14 @@ angular.module('meerkat.controllers', ['meerkat.services'])
 		}
 	})
 
-	.controller('SingUpCtrl', function ($rootScope, $scope, API, $window) {
+	.controller('SignUpCtrl', function ($rootScope, $scope, API, $window) {
 		$scope.user = {
 			name: '',
 			email: '',
 			password: '',
 		};
+
+		console.log('in the signup controller');
 
 		$scope.createUser = function() {
 			var email = this.user.email;
@@ -88,27 +90,27 @@ angular.module('meerkat.controllers', ['meerkat.services'])
 
 	.controller('myFeedCtrl', function ($rootScope, $scope, API, $ionicModal, $window) {
 
-		$rootScope.$on('fetchCompleted', function() {
-			API.getUsers($rootScope.getToken())
-				.success (function (data, status, headers, config) {
-					$scope.feed = [];
+		console.log('here!');
+		
+		API.getUsers($rootScope.getToken())
+			.success (function (data, status, headers, config) {
+				$scope.feed = [];
 
-					//iterate through each user
-					for (var count = 0; count < data.length; count ++){
-						$scope.feed.push( data[count]);
-					}
+				//iterate through each user
+				for (var count = 0; count < data.length; count ++){
+					$scope.feed.push( data[count]);
+				}
 
-					//check if we have no data
-					if (data.length == 0) {
-						$scope.noData = true;
-					} else {
-						$scope.noData = false;
-					}
-				})
-				.error (function (data, status, headers, config) {
-					$rootScope.notify('Something wrong happened');
-				});
-		});
+				//check if we have no data
+				if (data.length == 0) {
+					$scope.noData = true;
+				} else {
+					$scope.noData = false;
+				}
+			})
+			.error (function (data, status, headers, config) {
+				$rootScope.notify('Something wrong happened');
+			});
 
 		$rootScope.$broadcast('fetchCompleted');
 	});
