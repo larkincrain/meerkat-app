@@ -88,11 +88,31 @@ angular.module('meerkat.controllers', ['meerkat.services'])
 		}
 	})
 
-	.controller('myFeedCtrl', function ($rootScope, $scope, API, $window) {
+	.controller('myFeedCtrl', function ($rootScope, $scope, API, $window, $ionicPlatform, $cordovaBeacon) {
 
 		console.log('here!');
 		
-		
+		$scope.beacons = {};
+		 
+	    $ionicPlatform.ready(function() {
+	 
+	        $cordovaBeacon.requestWhenInUseAuthorization();
+	 
+	        $rootScope.$on("$cordovaBeacon:didRangeBeaconsInRegion", function(event, pluginResult) {
+	            var uniqueBeaconKey;
+	            for(var i = 0; i < pluginResult.beacons.length; i++) {
+	                uniqueBeaconKey = pluginResult.beacons[i].uuid + ":" + pluginResult.beacons[i].major + ":" + pluginResult.beacons[i].minor;
+	                $scope.beacons[uniqueBeaconKey] = pluginResult.beacons[i];
+	            }
+	            $scope.$apply();
+
+	            console.log('found a new beacon');
+	        });
+	 
+	        $cordovaBeacon.startRangingBeaconsInRegion($cordovaBeacon.createBeaconRegion("estimote", "b9407f30-f5f8-466e-aff9-25556b57fe6d"));
+	 
+	    });
+
 		API.getUsers($rootScope.getToken())
 			.success (function (data, status, headers, config) {
 				$scope.feed = [];
@@ -120,6 +140,5 @@ angular.module('meerkat.controllers', ['meerkat.services'])
 			.error (function (data, status, headers, config) {
 				$rootScope.notify('Something wrong happened');
 			});
-
 	});
 
