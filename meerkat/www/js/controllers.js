@@ -13,33 +13,59 @@ angular.module('meerkat.controllers', ['meerkat.services'])
 			password: ''
 		};
 
+		$scope.debugging = {
+			message: '',
+			success: true
+		}
+
 		$scope.validateUser = function() {
 			var email = this.user.email;
 			var password = this.user.password;
 
+			$scope.debugging.message = 'About to validate the user.';
+
 			//check to see if we have enough to validate on
 			if (!email || !password) {
+				$scope.debugging.message += '\r\nIncorrect credentials.';
+				$scope.debugging.success = false;
+
 				$rootScope.notify('Please enter valid credentials.');
 				return false;
 			}
 
 			//attempt to validate
 			$rootScope.show('Please wait while we authenticate!');
+			$scope.debugging.message += '\r\nPlease wait while we authenticate.';
+
 			API.signin(email, password)
 				.success( function(data) {
 					//check to see if this is successful or not
 					if (data.success) {
 						//save the token and redirect to the home screen
-						$rootScope.setToken(data.token);
+						$rootScope.setToken(data.jwt);
 						$rootScope.hide();
-						$window.location.href = ('/feed/list');
+
+						// console.log('got token: ' + data.jwt);
+
+						// $window.localStorage.token = data.jwt;
+
+						$window.location.href = ('#/feed/list');
 					} else {
+						$scope.debugging.message += '\r\n Error: ' + data.message;	
+						$scope.debugging.success = false;
+
 						$rootScope.hide();
 						$rootScope.notify(data.message);
 					}
 				}).error( function(error) {
+
+					console.log(error);
+
+					$scope.debugging.message += '\r\n Big Error: ' + JSON.stringify(error);
+					$scope.debugging.success = false;
+
 					$rootScope.hide();
-					$rootScope.notify(data.message);
+					$rootScope.notify(error);
 				});
 		}
 	})
@@ -71,9 +97,12 @@ angular.module('meerkat.controllers', ['meerkat.services'])
 
 					if (data.success) {
 						//save the access token
-						$rootScope.setToken(data.token);
+						$rootScope.setToken(data.jwt);
+
+						$window.localStorage.token = data.jwt;
+
 						$rootScope.hide();
-						$window.location.href = ('/feed/list');
+						$window.location.href = ('#/feed/list');
 					} else {
 						//problem with authenticating, so display the error message
 						$rootScope.hide();
@@ -93,10 +122,13 @@ angular.module('meerkat.controllers', ['meerkat.services'])
 		console.log('here!');
 		
 		$scope.beacons = {};
+		
+		$scope.token = $window.localStorage.token;
+
 		 
 	    $ionicPlatform.ready(function() {
 	 
-	        $cordovaBeacon.requestWhenInUseAuthorization();
+			$cordovaBeacon.requestWhenInUseAuthorization();
 	 
 	        $rootScope.$on("$cordovaBeacon:didRangeBeaconsInRegion", function(event, pluginResult) {
 	            var uniqueBeaconKey;
@@ -105,20 +137,21 @@ angular.module('meerkat.controllers', ['meerkat.services'])
 	                $scope.beacons[uniqueBeaconKey] = pluginResult.beacons[i];
 	            }
 	            $scope.$apply();
-
-	            console.log('found a new beacon');
 	        });
 	 
 	        $cordovaBeacon.startRangingBeaconsInRegion($cordovaBeacon.createBeaconRegion("estimote", "b9407f30-f5f8-466e-aff9-25556b57fe6d"));
-	 
-	    });
 
-		API.getUsers($rootScope.getToken())
+	    });
+	    
+	    console.log($rootScope.getToken());
+	    console.log($window.localStorage.token);
+
+		API.getPromotions($rootScope.getToken())
 			.success (function (data, status, headers, config) {
 				$scope.feed = [];
 
 				//debugging
-				console.log('Got user data');
+				console.log('Got promotion data');
 				console.log(data);
 
 				//iterate through each user

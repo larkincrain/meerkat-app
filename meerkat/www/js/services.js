@@ -1,6 +1,7 @@
 angular.module('meerkat.services', [])
 	.factory('API', function($rootScope, $http, $ionicLoading, $window){
-		var base = 'http://localhost:1235';
+		//var base = 'http://localhost:1235';
+		var base = 'http://ec2-54-186-96-29.us-west-2.compute.amazonaws.com:1235';
 
 		$rootScope.show = function (text) {
 			$rootScope.loading = $ionicLoading.show({
@@ -73,12 +74,22 @@ angular.module('meerkat.services', [])
 				});
 			},
 
-			getUsers: function() {
+			getPromotions: function(token) {
+				return $http({
+					url: base + '/api/promotions',
+					method: 'GET',
+					params: {
+						token: token
+					}
+				});	
+			},
+
+			getUsers: function(token) {
 				return $http({
 					url: base + '/api/users',
 					method: 'GET',
 					params: {
-						token: $rootScope.getToken()
+						token: token
 					}
 				});	
 			}
