@@ -84,6 +84,16 @@ angular.module('meerkat.services', [])
 				});	
 			},
 
+			getPromotionByBeaconId: function(token, beaconId) {
+				return $http({
+					url: base + '/api/promotions/beaconId/' + beaconId,
+					method: 'GET',
+					params: {
+						token: token
+					}
+				});	
+			},
+
 			getUsers: function(token) {
 				return $http({
 					url: base + '/api/users',

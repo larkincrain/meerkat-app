@@ -119,12 +119,8 @@ angular.module('meerkat.controllers', ['meerkat.services'])
 
 	.controller('myFeedCtrl', function ($rootScope, $scope, API, $window, $ionicPlatform, $cordovaBeacon) {
 
-		console.log('here!');
-		
-		$scope.beacons = {};
-		
+		$scope.beacons = {};		
 		$scope.token = $window.localStorage.token;
-
 		 
 	    $ionicPlatform.ready(function() {
 	 
@@ -135,40 +131,44 @@ angular.module('meerkat.controllers', ['meerkat.services'])
 	            for(var i = 0; i < pluginResult.beacons.length; i++) {
 	                uniqueBeaconKey = pluginResult.beacons[i].uuid + ":" + pluginResult.beacons[i].major + ":" + pluginResult.beacons[i].minor;
 	                $scope.beacons[uniqueBeaconKey] = pluginResult.beacons[i];
-	            }
+
+	            	//If we find a beacon, then we should determine which promotion it is tied to.
+	                API.getPromotionByBeaconId($rootScope.getToken(), $scope.beacons)
+	                	.success( function (data, status, headers, config) {
+							$scope.feed = [];
+
+							//debugging
+							console.log('Got promotion data');
+							console.log(data);
+
+							//iterate through each user
+							for (var count = 0; count < data.length; count ++){
+								$scope.feed.push( data[count]);
+							}
+
+							//more debugging
+							console.log('Feed info');
+							console.log($scope.feed);
+
+							//check if we have no data
+							if (data.length == 0) {
+								$scope.noData = true;
+							} else {
+								$scope.noData = false;
+							}
+	                	});
+	            }	
+
 	            $scope.$apply();
 	        });
-	 
+				
 	        $cordovaBeacon.startRangingBeaconsInRegion($cordovaBeacon.createBeaconRegion("estimote", "b9407f30-f5f8-466e-aff9-25556b57fe6d"));
 
 	    });
 	    
-	    console.log($rootScope.getToken());
-	    console.log($window.localStorage.token);
-
 		API.getPromotions($rootScope.getToken())
 			.success (function (data, status, headers, config) {
-				$scope.feed = [];
-
-				//debugging
-				console.log('Got promotion data');
-				console.log(data);
-
-				//iterate through each user
-				for (var count = 0; count < data.length; count ++){
-					$scope.feed.push( data[count]);
-				}
-
-				//more debugging
-				console.log('Feed info');
-				console.log($scope.feed);
-
-				//check if we have no data
-				if (data.length == 0) {
-					$scope.noData = true;
-				} else {
-					$scope.noData = false;
-				}
+				
 			})
 			.error (function (data, status, headers, config) {
 				$rootScope.notify('Something wrong happened');
