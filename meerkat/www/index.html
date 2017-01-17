@@ -28,7 +28,9 @@
     <script src="lib/ionic/js/ionic.bundle.js"></script>
 
     <!-- cordova script (this will be a 404 during development) -->
+    <script src="js/ng-cordova.min.js"></script>
     <script src="cordova.js"></script>
+    
 
     <!-- your app's js -->
     <script src="js/app.js"></script>
@@ -39,12 +41,12 @@
   </head>
   <body ng-app="meerkat">
     <ion-pane>
-      <ion-nav-bar class="bar-stable nav-title-slide-ios7">
-        <ion-nav-back-button class="button-icon icon ion-chevron-left">
-          Back
-        </ion-nav-back-button>  
+      <ion-nav-bar class="bar-light">
+        <ion-nav-title>
+          Meerkat
+        </ion-nav-title>
       </ion-nav-bar>
-
+      
       <ion-nav-view>
       </ion-nav-view>
     </ion-pane>

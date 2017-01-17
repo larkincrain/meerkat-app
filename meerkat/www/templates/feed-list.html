@@ -1,31 +1,28 @@
 <ion-header-bar class="bar-positive">
-	<h1 class="title"> My Feed! </h1>
+	<h1 class="title"> Near Me </h1>
 </ion-header-bar>
 
-<ion-content class="has-header padding" has-tabs="true">
-	<div>
-		<div> Beacons: :) </div>
-		<div class="list">
-	        <div class="item" ng-repeat="(key, value) in beacons">
-	            <div class="row">
-	                <div class="col truncate">
-	                    {{value.uuid}}
-	                </div>
-	            </div>
-	            <div class="row">
-	                <div class="col">
-	                    major: {{value.major}}
-	                </div>
-	                <div class="col">
-	                    minor: {{value.minor}}
-	                </div>
-	            </div>
-	            <div class="row">
-	                <div class="col">
-	                    {{value.proximity}}
-	                </div>
-	            </div>
-	        </div>
-	    </div>
+<ion-content class="has-header" has-tabs="true">
+	<div class="list card" ng-repeat="(key, value) in feed">
+
+		<div class="item item-avatar">
+			<img ng-src="{{value.organization.profile_picture}}">
+			<h2>{{value.organization.name}}</h2>
+			<p>{{value.organization.location}}</p>
+		</div>
+
+		<div class="item item-image item-text-wrap">
+			<img ng-src="{{value.media[0].data}}" class="meerkat-promotion-image">
+			<h2 class="meerkat-promotion-title item-text-wrap">{{value.title}}</h2>
+		</div>
+
+		<div class="item item-divider item-text-wrap">
+			<p>{{value.text}}</p>
+			<div>
+				<a class="button button-icon icon ion-android-share-alt meerkat-share-button" onclick="window.plugins.socialsharing.shareViaFacebook('Message via Facebook', null /* img */, null /* url */, function() {console.log('share ok')}, function(errormsg){alert(errormsg)})"></a>
+				<a class="button button-icon icon ion-bookmark meerkat-share-button"></a>
+				<a class="button button-icon icon ion-heart meerkat-share-button"></a> 
+			</div>
+		</div>
 	</div>
 </ion-content>

@@ -46,6 +46,14 @@ angular.module('meerkat.services', [])
 			return $window.localStorage.token;
 		}
 
+		$rootScope.setUserData = function (user) {
+			$window.localStorage.user = user;
+		}
+
+		$rootScope.getUserData = function (user) {
+			return $window.localStorage.user;
+		}
+
 		$rootScope.isSessionActive = function() {
 			return $window.localStorage.token ? true : false;
 		}
@@ -90,6 +98,18 @@ angular.module('meerkat.services', [])
 					method: 'GET',
 					params: {
 						token: token
+					}
+				});	
+			},
+
+			putFavoritePromotion: function(token, promotionId, userId) {
+				return $http({
+					url: base + '/api/users/favorite/',
+					method: 'PUT',
+					data: {
+						token: token,
+						user_id: userId,
+						promotion_id: promotionId
 					}
 				});	
 			},

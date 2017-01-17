@@ -1,4 +1,4 @@
-angular.module('meerkat.controllers', ['meerkat.services'])
+angular.module('meerkat.controllers', ['meerkat.services', 'ionic', 'ngCordova'])
 
 	.controller('SignInCtrl', function ($rootScope, $scope, API, $window) {
 
@@ -43,7 +43,10 @@ angular.module('meerkat.controllers', ['meerkat.services'])
 					if (data.success) {
 						//save the token and redirect to the home screen
 						$rootScope.setToken(data.jwt);
+						$rootScope.setUserData(data.user);
 						$rootScope.hide();
+
+						//TODO: We need to save the user object to a globally accessible location
 
 						// console.log('got token: ' + data.jwt);
 
@@ -121,7 +124,9 @@ angular.module('meerkat.controllers', ['meerkat.services'])
 
 		$scope.beacons = {};		
 		$scope.token = $window.localStorage.token;
-		 
+		$scope.feed = [];
+		$scope.debugging = "testing"; 
+
 	    $ionicPlatform.ready(function() {
 	 
 			$cordovaBeacon.requestWhenInUseAuthorization();
@@ -130,48 +135,83 @@ angular.module('meerkat.controllers', ['meerkat.services'])
 	            var uniqueBeaconKey;
 	            for(var i = 0; i < pluginResult.beacons.length; i++) {
 	                uniqueBeaconKey = pluginResult.beacons[i].uuid + ":" + pluginResult.beacons[i].major + ":" + pluginResult.beacons[i].minor;
-	                $scope.beacons[uniqueBeaconKey] = pluginResult.beacons[i];
-
-	            	//If we find a beacon, then we should determine which promotion it is tied to.
-	                API.getPromotionByBeaconId($rootScope.getToken(), $scope.beacons)
-	                	.success( function (data, status, headers, config) {
-							$scope.feed = [];
-
-							//debugging
-							console.log('Got promotion data');
-							console.log(data);
-
-							//iterate through each user
-							for (var count = 0; count < data.length; count ++){
-								$scope.feed.push( data[count]);
-							}
-
-							//more debugging
-							console.log('Feed info');
-							console.log($scope.feed);
-
-							//check if we have no data
-							if (data.length == 0) {
-								$scope.noData = true;
-							} else {
-								$scope.noData = false;
-							}
-	                	});
+	                
+	                //check if we already have this beacon
+	                if (! $scope.beacons[uniqueBeaconKey]) {
+		                $scope.beacons[uniqueBeaconKey] = pluginResult.beacons[i];
+                        getPromotion(pluginResult.beacons[i].uuid);
+	                }
 	            }	
 
 	            $scope.$apply();
 	        });
 				
 	        $cordovaBeacon.startRangingBeaconsInRegion($cordovaBeacon.createBeaconRegion("estimote", "b9407f30-f5f8-466e-aff9-25556b57fe6d"));
-
 	    });
-	    
-		API.getPromotions($rootScope.getToken())
-			.success (function (data, status, headers, config) {
-				
-			})
-			.error (function (data, status, headers, config) {
-				$rootScope.notify('Something wrong happened');
-			});
+
+		$scope.sharePromotion = function(promotion) {
+
+			$scope.debugging = "sharing!";
+
+			// this is the complete list of currently supported params you can pass to the plugin (all optional)
+			var options = {
+			  message: 'share this', // not supported on some apps (Facebook, Instagram)
+			  subject: 'the subject', // fi. for email
+			  files: ['', ''], // an array of filenames either locally or remotely
+			  url: 'https://www.website.com/foo/#bar?a=b',
+			  chooserTitle: 'Pick an app' // Android only, you can override the default share sheet title
+			}
+
+			var onSuccess = function(result) {
+			  console.log("Share completed? " + result.completed); // On Android apps mostly return false even while it's true
+			  console.log("Shared to app: " + result.app); // On Android result.app is currently empty. On iOS it's empty when sharing is cancelled (result.completed=false)
+			}
+
+			var onError = function(msg) {
+			  console.log("Sharing failed with message: " + msg);
+			}
+
+			window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
+
+    		//$cordovaSocialSharing.share("This is your message", "This is your subject", null, "https://www.thepolyglotdeveloper.com");
+		
+    	   // $cordovaSocialSharing
+		   //  .share(promotion, subject, promotion, link) // Share via native share sheet
+		   //  .then(function(result) {
+		   //  	// Success!
+
+		   //  }, function(err) {
+		   //  	// An error occured. Show a message to the user
+		   //  });
+    	};
+
+    	$scope.favoritePromotion = function (promotion) {
+
+    		API.favoritePromotion($rootScope.getToken(), promotion)
+    			.success (function (data, stats, headers, config){
+    				
+    			});
+
+    		$rootScope.getUserData().favorites.push(promotion); 
+    	}
+
+	    function getPromotion (beaconId) {
+			API.getPromotionByBeaconId($rootScope.getToken(), beaconId)
+            	.success( function (data, status, headers, config) {
+            		$scope.feed.push(data);
+
+                        cordova.plugins.notification.local.schedule({
+						    title: data.title,
+						    message: data.text
+						});		
+
+					//check if we have no data
+					if (data.length == 0) {
+						$scope.noData = true;
+					} else {
+						$scope.noData = false;
+					}
+            	});
+	    };
 	});
 
